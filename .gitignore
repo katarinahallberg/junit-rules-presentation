@@ -3,3 +3,6 @@
 log/*.log
 tmp/**
 .sass-cache
+.iml
+.ipr
+.iws
