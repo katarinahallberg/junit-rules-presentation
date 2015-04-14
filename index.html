@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js - The HTML Presentation Framework</title>
+		<title>JUnit Rules</title>
 
 		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
 		<meta name="author" content="Hakim El Hattab">
@@ -19,7 +19,7 @@
 		<link rel="stylesheet" href="css/theme/jayway.css">
 
 		<!-- Code syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="lib/css/default.css">
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -48,6 +48,255 @@
 						<small>By Katarina Hallberg</small>
 					</p>
 				</section>
+				<section>
+					<h2>What's your problem?! <br/> (and solution)</h2>
+					<ul>
+						<li>Failing test due to <b>missing cleanup</b>?</li>
+						<li><b>Repeated setup / cleanup code</b>?</li>
+						<li><b>Deep test class hierarchy</b> due to using inheritance to reuse code or configuration?</li>
+						<li><b>Custom JUnit Runners?</b></li>
+					</ul>
+				</section>
+				<section>
+					<h2>JUnit Rules = A solution</h2>
+					<p>Since version 4.7, 2009</p>
+					<ul>
+						<li>Do things <b>before</b> and <b>after</b> a <b>test</b> is run</li>
+						<li>Do things <b>before</b> and <b>after</b> a <b>test class</b> or <b>test suite</b> is run</li>
+						<li>Setup and cleanup <b>together</b></li>
+						<li><b>Reusable</b></li>
+						<li><b>Combinable</b></li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h2>This is how it works</h2>
+					</section>
+					<section>
+						<h4>This is how it works</h4>
+						<h5><small>Test class</small></h5>
+						<pre><code data-trim class="java">
+public class TestClass {
+    @Test
+    public void test_one() {...}
+
+    @Test
+    public void test_two() {...}
+
+    @Test
+    public void test_three() {...}
+}
+						</code></pre>
+					</section>
+					<section>
+						<h4>This is how it works</h4>
+						<h5><small>Test wrapped in Statement</small></h5>
+						<img data-src="resources/wrapped_in_statements.png"/>
+					</section>
+					<section>
+						<h4>This is how it works</h4>
+						<h5><small>Statement</small></h5>
+						<pre><code data-trim class="java">
+public abstract class Statement {
+    public abstract void evaluate() throws Throwable;
+}
+						</code></pre>
+					</section>
+					<section>
+						<h4>This is how it works</h4>
+						<h5><small>Rule takes and returns Statement</small></h5>
+						<img data-src="resources/rule_horizontal.png"/>
+					</section>
+					<section>
+						<h4>This is how it works</h4>
+						<h5><small>Rule</small></h5>
+						<pre><code data-trim class="java">
+public interface TestRule {
+    Statement apply(Statement base, Description description);
+}
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Use a Rule</h2>
+						<ul>
+							<li>A Rule implements <b>TestRule</b></li>
+							<li><b>@Rule</b> (public)</li>
+							<li><b>@ClassRule</b> (public static)</li>
+						</ul>
+					</section>
+					<section>
+						<h4>Use a Rule</h4>
+						<h5><small>Method</small></h5>
+						<pre><code data-trim class="java">
+public class SuperTestUsingRules {
+
+    @Rule
+    public LoggingRule loggingRule = new LoggingRule();
+
+    @Test
+    public void test_one() {...}
+
+    @Test
+    public void test_two() {...}
+}
+						</code></pre>
+					</section>
+					<section>
+						<h4>Use a Rule</h4>
+						<h5><small>Class</small></h5>
+						<pre><code data-trim class="java">
+public class SuperTestUsingRules {
+
+    @ClassRule
+    public static LoggingRule loggingRule = new LoggingRule();
+
+    @Test
+    public void test_one() {...}
+
+    @Test
+    public void test_two() {...}
+}
+                        </code></pre>
+					</section>
+				</section>
+				<section>
+					<h2>Implement a Rule</h2>
+					<pre><code data-trim class="java">
+public class LoggingRule implements TestRule {
+
+  @Override
+  public Statement apply(Statement base, Description description) {
+
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        System.out.println("Before executing original Statement");
+        try {
+          base.evaluate();
+        } finally {
+          System.out.println("After executing original Statement");
+        }
+      }
+    };
+  }
+}
+					</code></pre>
+				</section>
+				<section>
+					<section>
+						<h2>Order of execution</h2>
+						<p>(Demo)</p>
+					</section>
+					<section>
+						<h4>Order of execution</h4>
+						<img data-src="resources/ExecutionOnion.png"/>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>5 Rules provided by JUnit</h2>
+						<ul>
+							<li>Timeout</li>
+							<li>TemporaryFolder</li>
+							<li>ExpectedException</li>
+							<li>ErrorCollector</li>
+							<li>TestName</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Example: Expected Exception</h2>
+						<pre><code data-trim class="java">
+public class ExpectedExceptionTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void throws_nullpointer_exception() {
+        thrown.expect(NullPointerException.class);
+        thrown.expectMessage(endsWith("null pointer"));
+        throwNullPointerException();
+    }
+
+    private void throwNullPointerException() {
+        throw new NullPointerException("This is a null pointer");
+    }
+}
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>3 Rule base classes provided by JUnit</h2>
+						<ul>
+							<li>ExternalResource (TemporaryFolder)</li>
+							<li>Verifier (ErrorCollector)</li>
+							<li>TestWatcher (TestName)</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Example: External Resource</h2>
+						<h5><small>Extending TestRule</small></h5>
+						<pre><code data-trim class="java">
+public class LoggingRule implements TestRule {
+
+  @Override
+  public Statement apply(Statement base, Description description) {
+
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        System.out.println("Before executing original Statement");
+        try {
+          base.evaluate();
+        } finally {
+          System.out.println("After executing original Statement");
+        }
+      }
+    };
+  }
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Example External Resource</h2>
+						<h5><small>Extending ExternalResource</small></h5>
+						<pre><code data-trim class="java">
+public class LoggingRule extends ExternalResource {
+
+  @Override
+  protected void before() throws Throwable {
+    System.out.println("Before executing original Statement");
+  }
+
+  @Override
+  protected void after() {
+    System.out.println("After executing original Statement");
+  }
+}
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Chain Rules</h2>
+						<p>(Demo)</p>
+					</section>
+					<section>
+						<h4>Chain Rules</h4>
+						<img data-src="resources/ChainOnion.png"/>
+					</section>
+				</section>
+				<section>
+					<h2>Summary</h2>
+					<ul>
+						<li>Setup and cleanup together</li>
+						<li>Reusable (without inheritance)</li>
+						<li>Combinable</li>
+					</ul>
+				</section>
 			</div>
 
 		</div>
@@ -65,7 +314,7 @@
 				history: true,
 				center: true,
 
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				transition: 'default', // none/fade/slide/convex/concave/zoom
 
 				// Optional reveal.js plugins
 				dependencies: [

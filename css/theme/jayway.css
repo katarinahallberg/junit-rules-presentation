@@ -13,3 +13,19 @@
   width: 200px;
   z-index: 99;
 }
+
+/**
+ * Override syntax highlighting colors (same as highlight.js default team
+ */
+.reveal pre code {
+  background: #f0f0f0;
+  color: black;
+}
+
+/**
+ * Override image border and shadow
+ */
+.reveal section img {
+  border: none;
+  box-shadow: none;
+}

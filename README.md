@@ -14,3 +14,6 @@ Slides are available at http://katarinahallberg.github.io/junit-rules-presentati
         live-server [--port=NNNN]
  
 3. Slides are available at localhost:8080 (or custom port)
+
+## Demo code
+Demo code is found in separate repository [junit-rules-presentation-demo](https://github.com/katarinahallberg/junit-rules-presentation-demo)
