@@ -69,6 +69,28 @@
 					</ul>
 				</section>
 				<section>
+					<h2>Example</h2>
+					<pre><code data-trim class="java">
+public class SettingsTest {
+
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
+  @Test
+  public void setting_can_be_retrieved_by_key() throws IOException {
+    File properties = folder.newFile("test.properties");
+    BufferedWriter out =
+        new BufferedWriter(new FileWriter(properties));
+    out.write("name = Katarina\n");
+    out.close();
+    Settings settings = new Settings();
+    settings.load(properties);
+    assertEquals("Katarina", settings.get("name"));
+  }
+}
+					</code></pre>
+				</section>
+				<section>
 					<section>
 						<h2>This is how it works</h2>
 					</section>
@@ -186,16 +208,6 @@ public class LoggingRule implements TestRule {
 				</section>
 				<section>
 					<section>
-						<h2>Order of execution</h2>
-						<p>(Demo)</p>
-					</section>
-					<section>
-						<h4>Order of execution</h4>
-						<img data-src="resources/ExecutionOnion.png"/>
-					</section>
-				</section>
-				<section>
-					<section>
 						<h2>5 Rules provided by JUnit</h2>
 						<ul>
 							<li>Timeout</li>
@@ -290,11 +302,16 @@ public class LoggingRule extends ExternalResource {
 					</section>
 				</section>
 				<section>
+					<h2>Rules + annotations = true</h2>
+					<img data-src="resources/ExecutionOnion.png"/>
+				</section>
+				<section>
 					<h2>Summary</h2>
 					<ul>
 						<li>Setup and cleanup together</li>
 						<li>Reusable (without inheritance)</li>
 						<li>Combinable</li>
+						<li>Use existing or write your own!</li>
 					</ul>
 				</section>
 			</div>
